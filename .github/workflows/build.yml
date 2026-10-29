@@ -28,18 +28,28 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Accept Android SDK Licenses
-        run: yes | sdkmanager --licenses || true
+        run: sdkmanager --licenses </dev/null || true
 
       - name: Install Android SDK Components
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+        run: |
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
       - name: Set Up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
+      - name: Check Project Files
+        run: |
+          echo "Checking Android project files..."
+          find . -maxdepth 6 -type f | sort
+          echo "Checking Java version..."
+          java -version
+          echo "Checking Android SDK..."
+          sdkmanager --list_installed
+
       - name: Build Debug APK
-        run: gradle assembleDebug
+        run: gradle assembleDebug --stacktrace --info
 
       - name: Save APK
         uses: actions/upload-artifact@v4
